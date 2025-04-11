@@ -1,7 +1,40 @@
 # jpa-querydsl
 
-## For Joins
+### Basic query
+```java
+List<Person> persons = queryFactory.selectFrom(person)
+  .where(
+    person.firstName.eq("John"),
+    person.lastName.eq("Doe"))
+  .fetch();
+```
 
+### Order
+```java
+List<Person> persons = queryFactory.selectFrom(person)
+  .orderBy(person.lastName.asc(), 
+           person.firstName.desc())
+  .fetch();
+```
+
+### Subqueries
+```java
+List<Person> persons = queryFactory.selectFrom(person)
+  .where(person.children.size().eq(
+    JPAExpressions.select(parent.children.size().max())
+                  .from(parent)))
+  .fetch();
+```
+
+### Tuple projection
+```java
+List<Tuple> tuples = queryFactory.select(
+    person.lastName, person.firstName, person.yearOfBirth)
+  .from(person)
+  .fetch();
+```
+
+### For Joins
 ```java
 public Address getEmployeeAddress(Long employeeId) {
     JPAQueryFactory queryFactory = new JPAQueryFactory(entityManager);
@@ -17,8 +50,7 @@ public Address getEmployeeAddress(Long employeeId) {
 }
 ```
 
-## To fetch both at once
-
+### To fetch both at once
 ```java
 Tuple result = queryFactory
     .select(employee, address)
